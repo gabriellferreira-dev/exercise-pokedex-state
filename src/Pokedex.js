@@ -6,29 +6,39 @@ class Pokedex extends React.Component {
   constructor() {
     super();
     this.setPokemon = this.setPokemon.bind(this);
+    this.getPokemonType = this.getPokemonType.bind(this);
     this.state = {
       pokemonIndex: 0,
+      pokemon: pokemons,
     }
   }
 
   setPokemon = () => {
-    this.setState((previousPokemon, _props) => ({
-      pokemonIndex: previousPokemon.pokemonIndex + 1,
+    this.setState(({ pokemonIndex, pokemon }, _props) => ({
+      pokemonIndex: pokemonIndex === pokemon.length - 1 ? 0 : pokemonIndex + 1,
     }));
-    if (pokemons[pokemons.length - 1] === pokemons[this.state.pokemonIndex]) {
-      this.setState(() => ({
-        pokemonIndex: 0,
-      }));
-    }
+  }
+
+  getPokemonType = (event) => {
+    const pokemon = pokemons.filter(({ type }) => type === event.target.value);
+    console.log(pokemon)
+    this.setState(() => ({
+      pokemonIndex: 0,
+      pokemon: pokemon,
+    }))
   }
 
   render() {
-      return (
-        <div className="pokedex">
-        <Pokemon pokemon={pokemons[this.state.pokemonIndex]}/>
-        <button onClick={this.setPokemon}>Próximo</button>
-      </div>
-      );
+    return (
+      <div className="pokedex">
+        <Pokemon pokemon={this.state.pokemon[this.state.pokemonIndex]}/>
+        <div className="buttons">
+          <button onClick={this.setPokemon}>Próximo</button>
+          <button onClick={this.getPokemonType} value="Fire">Fire</button>
+          <button onClick={this.getPokemonType} value="Psychic">Psychic</button>
+        </div>
+    </div>
+    );
   }
 }
 
