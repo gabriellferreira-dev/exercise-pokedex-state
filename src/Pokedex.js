@@ -1,43 +1,58 @@
 import React from 'react';
 import Pokemon from './Pokemon';
-import pokemons from './data'
+import data from './data';
+import Buttons from './components/buttons';
 
 class Pokedex extends React.Component {
-  constructor() {
-    super();
-    this.setPokemon = this.setPokemon.bind(this);
-    this.getPokemonType = this.getPokemonType.bind(this);
+  constructor(...args) {
+    super(...args);
     this.state = {
-      pokemonIndex: 0,
-      pokemon: pokemons,
-    }
+      index: 0,
+      pokemons: {
+        All: data,
+        perType: [],
+      },
+      selected: 'All',
+    };
   }
 
-  setPokemon = () => {
-    this.setState(({ pokemonIndex, pokemon }, _props) => ({
-      pokemonIndex: pokemonIndex === pokemon.length - 1 ? 0 : pokemonIndex + 1,
+  nextPokemon = () => {
+    this.setState(({ index, pokemons, selected }, _props) => ({
+      index: index === pokemons[selected].length - 1 ? 0 : index + 1,
     }));
-  }
+  };
 
-  getPokemonType = (event) => {
-    const pokemon = pokemons.filter(({ type }) => type === event.target.value);
-    console.log(pokemon)
-    this.setState(() => ({
-      pokemonIndex: 0,
-      pokemon: pokemon,
-    }))
-  }
+  pokemonsPerType = (value) => data.filter(({ type }) => type === value);
+
+  handleClick = (event) => {
+    const { value } = event.target;
+
+    this.setState({
+      selected: value !== 'All' ? 'perType' : 'All',
+    })
+    this.setState((prevState, _props) => ({
+      index: 0,
+      pokemons: {
+        ...prevState.pokemons,
+        perType: this.pokemonsPerType(value),
+      },
+    }));
+  };
 
   render() {
+    const { selected, pokemons, index } = this.state;
+
     return (
-      <div className="pokedex">
-        <Pokemon pokemon={this.state.pokemon[this.state.pokemonIndex]}/>
-        <div className="buttons">
-          <button onClick={this.setPokemon}>Próximo</button>
-          <button onClick={this.getPokemonType} value="Fire">Fire</button>
-          <button onClick={this.getPokemonType} value="Psychic">Psychic</button>
+      <div className='pokedex'>
+        <Pokemon pokemon={pokemons[selected][index]} />
+        <div className='buttons'>
+          <Buttons
+            nextPokemon={this.nextPokemon}
+            handleClick={this.handleClick}
+            types={[...new Set(data.map(({ type }) => type))]}
+          />
         </div>
-    </div>
+      </div>
     );
   }
 }
